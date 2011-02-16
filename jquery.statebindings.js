@@ -19,9 +19,11 @@
                 for (i = 0; i < $.stateBindings.objects.length; i++) {
                     var $obj = $.stateBindings.objects[i];
                     
+                    var data = $obj.data('stateBindings');
+                    
                     // Remove the bindings for the previous state
                     if (previousState != null) {
-                        events = $obj.stateBindings[previousState];
+                        events = data.states[previousState];
                         for (eventName in events) {
                             for (j in events[eventName]) {
                                 handler = events[eventName][j];
@@ -31,7 +33,7 @@
                     }
                     
                     // Add the bindings for the new state
-                    events = $obj.stateBindings[newState];
+                    events = data.states[newState];
                     for (eventName in events) {
                         for (j in events[eventName]) {
                             handler = events[eventName][j];
@@ -55,11 +57,12 @@
                 // Get the jQuery object and add to it an attribute for
                 // storing all of the possible bindings it has
                 var $this = $(this);
-                $this.stateBindings = {};
+                var data = {};
+                data.states = {};
                 
                 // For each state provided
                 for (var stateName in bindings) {
-                    $this.stateBindings[stateName] = {};
+                    data.states[stateName] = {};
                     
                     // For each event provided for this state
                     var events = bindings[stateName];
@@ -79,9 +82,12 @@
                         
                         // Stores the handler functions inside of the jQuery
                         // object
-                        $this.stateBindings[stateName][eventName] = functionList;
+                        data.states[stateName][eventName] = functionList;
                     }
                 }
+                
+                // Add the data to the jQuery object.
+                $this.data('stateBindings', data);
                 
                 // Adds the jQuery object to the list of objects the plugin
                 // will manage bindings for.
