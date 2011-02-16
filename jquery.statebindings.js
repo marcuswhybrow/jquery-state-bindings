@@ -1,6 +1,6 @@
 (function($) {
     
-    // jQuery methdos
+    // jQuery methods
     $.extend({
         stateBindings: {
             // Stores the current state
@@ -11,8 +11,33 @@
             
             // A method to set the state, and as a result of doing so, alter
             // the bindings active on the managed objects.
-            setState: function(state) {
-                $.stateBindings.state = state;
+            setState: function(newState) {
+                var previousState = $.stateBindings.state;
+                
+                // For each object this plugin is managing bindings for
+                for (var i in $.stateBindings.objects) {
+                    var $obj = $.stateBindings.objects[i];
+                    
+                    // Remove the bindings for the previous state
+                    var events = $obj.stateBindings[previousState];
+                    for (var eventName in events) {
+                        for (var i in events[eventName]) {
+                            var handler = events[eventName][i];
+                            $obj.unbind(eventName, handler);
+                        }
+                    }
+                    
+                    // Add the bindings for the new state
+                    events = $obj.stateBindings[newState];
+                    for (var eventName in events) {
+                        for (var i in events[eventName]) {
+                            var handler = events[eventName][i];
+                            $obj.bind(eventName, handler);
+                        }
+                    }
+                }
+                
+                $.stateBindings.state = newState;
             }
         }
     });
