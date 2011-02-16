@@ -19,13 +19,12 @@
                 for (i = 0; i < $.stateBindings.objects.length; i++) {
                     var $obj = $.stateBindings.objects[i];
                     
-                    console.log(i);
                     // Remove the bindings for the previous state
                     if (previousState != null) {
                         events = $obj.stateBindings[previousState];
                         for (eventName in events) {
                             for (j in events[eventName]) {
-                                handler = events[eventName][i];
+                                handler = events[eventName][j];
                                 $obj.unbind(eventName, handler);
                             }
                         }
@@ -35,7 +34,7 @@
                     events = $obj.stateBindings[newState];
                     for (eventName in events) {
                         for (j in events[eventName]) {
-                            handler = events[eventName][i];
+                            handler = events[eventName][j];
                             $obj.bind(eventName, handler);
                         }
                     }
