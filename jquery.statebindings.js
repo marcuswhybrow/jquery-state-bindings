@@ -1,98 +1,114 @@
 (function($) {
-    
+
+    // Accepts a function or an array of functions an calls an
+    // anonymous function with each as the only argument.
+    function iterate(handlerInput, f) {
+        if (handlerInput instanceof Array) {
+            for (var i = 0; i < handlerInput.length; i++) {
+                f(handlerInput[i]);
+            }
+        } else {
+            f(handlerInput);
+        }
+    }
+
     // jQuery methods
     $.extend({
         stateBindings: {
             // Stores the current state
             state: null,
-            
+
             // Stores the list of jQuery obejcts which the plugin is managing
             objects: [],
-            
+
+            liveObjects: [],
+
             // A method to set the state, and as a result of doing so, alter
             // the bindings active on the managed objects.
             setState: function(newState) {
                 var previousState = $.stateBindings.state;
-                var i, j, events, eventName, handler;
-                
-                // For each object this plugin is managing bindings for
-                for (i = 0; i < $.stateBindings.objects.length; i++) {
-                    var $obj = $.stateBindings.objects[i];
-                    
-                    var data = $obj.data('stateBindings');
-                    
+                var i, j, events, eventName, handlers;
+
+                // Handle the live bindings
+                for(i = 0; i < $.stateBindings.liveObjects.length; i++) {
+                    var $liveObj = $.stateBindings.liveObjects[i];
+
                     // Remove the bindings for the previous state
-                    if (previousState != null) {
-                        events = data.states[previousState];
+                    if (previousState !== null) {
+                        events = $liveObj.stateBindings[previousState];
                         for (eventName in events) {
-                            for (j in events[eventName]) {
-                                handler = events[eventName][j];
-                                $obj.unbind(eventName, handler);
-                            }
+                            handlers = events[eventName];
+
+                            iterate(handlers, function(handler) {
+                                $liveObj.die(eventName, handler);
+                            });
                         }
                     }
-                    
+
                     // Add the bindings for the new state
-                    events = data.states[newState];
+                    events = $liveObj.stateBindings[newState];
                     for (eventName in events) {
-                        for (j in events[eventName]) {
-                            handler = events[eventName][j];
-                            $obj.bind(eventName, handler);
-                        }
+                        handlers = events[eventName];
+
+                        iterate(handlers, function(handler) {
+                            $liveObj.live(eventName, handler);
+                        })
                     }
                 }
-                
+
+                // Handle the normal bindings
+                for (i = 0; i < $.stateBindings.objects.length; i++) {
+                    var $obj = $.stateBindings.objects[i];
+
+                    var data = $obj.data('stateBindings');
+
+                    // Remove the bindings for the previous state
+                    if (previousState !== null) {
+                        events = data[previousState];
+                        for (eventName in events) {
+                            handlers = events[eventName];
+                            iterate(handlers, function(handler) {
+                                $obj.unbind(eventName, handler);
+                            });
+                        }
+                    }
+
+                    // Add the bindings for the new state
+                    events = data[newState];
+                    for (eventName in events) {
+                        handlers = events[eventName];
+                        iterate(handlers, function(handler) {
+                            $obj.bind(eventName, handler);
+                        });
+                    }
+                }
+
                 $.stateBindings.state = newState;
             }
         }
     });
-    
+
     // jQuery object methods
     $.fn.extend({
-        stateBindings: function(bindings) {
-            
-            // For each element which this method is executed upon
-            return this.each(function() {
-                
-                // Get the jQuery object and add to it an attribute for
-                // storing all of the possible bindings it has
-                var $this = $(this);
-                var data = {};
-                data.states = {};
-                
-                // For each state provided
-                for (var stateName in bindings) {
-                    data.states[stateName] = {};
-                    
-                    // For each event provided for this state
-                    var events = bindings[stateName];
-                    for (var eventName in events) {
-                        // handlers could be an array of functions or a single
-                        // function
-                        var handlers = events[eventName];
-                        
-                        // Ensures we always store an array (even if a single
-                        // function was provided.)
-                        var functionList;
-                        if (handlers instanceof Array) {
-                            functionList = handlers;
-                        } else {
-                            functionList = [handlers];
-                        }
-                        
-                        // Stores the handler functions inside of the jQuery
-                        // object
-                        data.states[stateName][eventName] = functionList;
-                    }
-                }
-                
-                // Add the data to the jQuery object.
-                $this.data('stateBindings', data);
-                
-                // Adds the jQuery object to the list of objects the plugin
-                // will manage bindings for.
-                $.stateBindings.objects.push($this);
-            });
+        stateBindings: function(bindings, options) {
+
+            var defaults = {
+                live: false
+            };
+
+            var opts = $.extend(defaults, options);
+
+            if (opts.live === true) {
+                this.stateBindings = bindings;
+                $.stateBindings.liveObjects.push(this);
+            } else {
+                // For each element which this method is executed upon
+                return this.each(function() {
+                    var $this = $(this);
+                    $this.data('stateBindings', bindings);
+                    $.stateBindings.objects.push($this);
+                });
+            }
         }
     });
 })(jQuery);
