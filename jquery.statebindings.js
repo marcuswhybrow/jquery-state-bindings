@@ -13,25 +13,29 @@
             // the bindings active on the managed objects.
             setState: function(newState) {
                 var previousState = $.stateBindings.state;
+                var i, j, events, eventName, handler;
                 
                 // For each object this plugin is managing bindings for
-                for (var i in $.stateBindings.objects) {
+                for (i = 0; i < $.stateBindings.objects.length; i++) {
                     var $obj = $.stateBindings.objects[i];
                     
+                    console.log(i);
                     // Remove the bindings for the previous state
-                    var events = $obj.stateBindings[previousState];
-                    for (var eventName in events) {
-                        for (var i in events[eventName]) {
-                            var handler = events[eventName][i];
-                            $obj.unbind(eventName, handler);
+                    if (previousState != null) {
+                        events = $obj.stateBindings[previousState];
+                        for (eventName in events) {
+                            for (j in events[eventName]) {
+                                handler = events[eventName][i];
+                                $obj.unbind(eventName, handler);
+                            }
                         }
                     }
                     
                     // Add the bindings for the new state
                     events = $obj.stateBindings[newState];
-                    for (var eventName in events) {
-                        for (var i in events[eventName]) {
-                            var handler = events[eventName][i];
+                    for (eventName in events) {
+                        for (j in events[eventName]) {
+                            handler = events[eventName][i];
                             $obj.bind(eventName, handler);
                         }
                     }
@@ -68,14 +72,15 @@
                         // Ensures we always store an array (even if a single
                         // function was provided.)
                         var functionList;
-                        if (handlers instanceof Array)
+                        if (handlers instanceof Array) {
                             functionList = handlers;
-                        else
+                        } else {
                             functionList = [handlers];
+                        }
                         
                         // Stores the handler functions inside of the jQuery
                         // object
-                        $this.stateBindings[stateName][eventName] = handlers;
+                        $this.stateBindings[stateName][eventName] = functionList;
                     }
                 }
                 
