@@ -63,4 +63,4 @@ For each event name (which corresponds to the jQuery event names) you can specif
 More Information
 ----------------
 
-This is currently the only documentation for this plugin, for more information you could always end me (Marcus Whybrow) an email at [mailto:jquery-state-bindings@marcuswhybrow.net](jquery-state-bindings@marcuswhybrow.net).
+This is currently the only documentation for this plugin, for more information you could always end me (Marcus Whybrow) an email at [jquery-state-bindings@marcuswhybrow.net](mailto:jquery-state-bindings@marcuswhybrow.net).
