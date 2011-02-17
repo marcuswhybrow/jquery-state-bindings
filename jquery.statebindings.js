@@ -52,7 +52,7 @@
 
                         iterate(handlers, function(handler) {
                             $liveObj.live(eventName, handler);
-                        })
+                        });
                     }
                 }
 
@@ -60,11 +60,9 @@
                 for (i = 0; i < $.stateBindings.objects.length; i++) {
                     var $obj = $.stateBindings.objects[i];
 
-                    var data = $obj.data('stateBindings');
-
                     // Remove the bindings for the previous state
                     if (previousState !== null) {
-                        events = data[previousState];
+                        events = $obj.stateBindings[previousState];
                         for (eventName in events) {
                             handlers = events[eventName];
                             iterate(handlers, function(handler) {
@@ -74,7 +72,7 @@
                     }
 
                     // Add the bindings for the new state
-                    events = data[newState];
+                    events = $obj.stateBindings[newState];
                     for (eventName in events) {
                         handlers = events[eventName];
                         iterate(handlers, function(handler) {
@@ -91,21 +89,43 @@
     // jQuery object methods
     $.fn.extend({
         stateBindings: function(bindings, options) {
-
+            var stateName, stateNames, finalBindings, events, eventName,
+                eventNames, finalEvents;
+            
+            // Split apart state and event names.
+            finalBindings = {};
+            for (stateName in bindings) {
+                stateNames = stateName.split(' ');
+                for (var i = 0; i < stateNames.length; i++) {
+                    events = bindings[stateName];
+                    finalEvents = {};
+                    for(eventName in events) {
+                        eventNames = eventName.split(' ');
+                        for (var j = 0; j < eventNames.length; j ++) {
+                            finalEvents[eventNames[j]] =
+                                bindings[stateName][eventName];
+                        }
+                    }
+                    finalBindings[stateNames[i]] = finalEvents;
+                }
+            }
+            
+            console.log(finalBindings);
+            
             var defaults = {
                 live: false
             };
-
+            
             var opts = $.extend(defaults, options);
-
+            
             if (opts.live === true) {
-                this.stateBindings = bindings;
+                this.stateBindings = finalBindings;
                 $.stateBindings.liveObjects.push(this);
             } else {
                 // For each element which this method is executed upon
                 return this.each(function() {
                     var $this = $(this);
-                    $this.data('stateBindings', bindings);
+                    $this.stateBindings = finalBindings;
                     $.stateBindings.objects.push($this);
                 });
             }
