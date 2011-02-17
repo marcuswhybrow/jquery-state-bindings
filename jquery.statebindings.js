@@ -11,12 +11,29 @@
             f(handlerInput);
         }
     }
+    
+    Array.prototype.contains = function(obj) {
+        var i = this.length;
+        while (i--) {
+            if (this[i] === obj) {
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    function getNames(str) {
+        if (str.length === 0)
+            return [];
+        
+        return str.split(' ');
+    }
 
     // jQuery methods
     $.extend({
         stateBindings: {
             // Stores the current state
-            state: null,
+            state: '',
 
             // Stores the list of jQuery obejcts which the plugin is managing
             objects: [],
@@ -26,58 +43,77 @@
             // A method to set the state, and as a result of doing so, alter
             // the bindings active on the managed objects.
             setState: function(newState) {
+                var newStates = getNames(newState);
                 var previousState = $.stateBindings.state;
+                var previousStates = getNames(previousState);
                 var i, j, events, eventName, handlers;
 
                 // Handle the live bindings
                 for(i = 0; i < $.stateBindings.liveObjects.length; i++) {
                     var $liveObj = $.stateBindings.liveObjects[i];
 
-                    // Remove the bindings for the previous state
-                    if (previousState !== null) {
-                        events = $liveObj.stateBindings[previousState];
-                        for (eventName in events) {
-                            handlers = events[eventName];
+                    for (var j = 0; j < previousStates.length; j++) {
+                        // Remove the bindings for the previous state
+                        var state = previousStates[j];
+                        if (! newStates.contains(state)) {
+                            events = $liveObj.stateBindings[state];
+                            for (eventName in events) {
+                                handlers = events[eventName];
 
-                            iterate(handlers, function(handler) {
-                                $liveObj.die(eventName, handler);
-                            });
+                                iterate(handlers, function(handler) {
+                                    $liveObj.die(eventName, handler);
+                                });
+                            }
                         }
                     }
+                    
+                    for (var j = 0; j < newStates.length; j++) {
+                        var state = newStates[j];
+                        if (! previousStates.contains(state)) {
+                            // Add the bindings for the new state
+                            events = $liveObj.stateBindings[state];
+                            for (eventName in events) {
+                                handlers = events[eventName];
 
-                    // Add the bindings for the new state
-                    events = $liveObj.stateBindings[newState];
-                    for (eventName in events) {
-                        handlers = events[eventName];
-
-                        iterate(handlers, function(handler) {
-                            $liveObj.live(eventName, handler);
-                        });
+                                iterate(handlers, function(handler) {
+                                    $liveObj.live(eventName, handler);
+                                });
+                            }
+                        }
                     }
                 }
 
                 // Handle the normal bindings
                 for (i = 0; i < $.stateBindings.objects.length; i++) {
                     var $obj = $.stateBindings.objects[i];
-
-                    // Remove the bindings for the previous state
-                    if (previousState !== null) {
-                        events = $obj.stateBindings[previousState];
-                        for (eventName in events) {
-                            handlers = events[eventName];
-                            iterate(handlers, function(handler) {
-                                $obj.unbind(eventName, handler);
-                            });
+                    
+                    for (var j = 0; j < previousStates.length; j++) {
+                        var state = previousStates[j];
+                        
+                        if (! newStates.contains(state)) {
+                            // Remove the bindings for the previous state
+                            events = $obj.stateBindings[state];
+                            for (eventName in events) {
+                                handlers = events[eventName];
+                                iterate(handlers, function(handler) {
+                                    $obj.unbind(eventName, handler);
+                                });
+                            }
                         }
                     }
-
-                    // Add the bindings for the new state
-                    events = $obj.stateBindings[newState];
-                    for (eventName in events) {
-                        handlers = events[eventName];
-                        iterate(handlers, function(handler) {
-                            $obj.bind(eventName, handler);
-                        });
+                    
+                    for (var j = 0; j < newStates.length; j++) {
+                        var state = newStates[j];
+                        if (! previousStates.contains(state)) {
+                            // Add the bindings for the new state
+                            events = $obj.stateBindings[state];
+                            for (eventName in events) {
+                                handlers = events[eventName];
+                                iterate(handlers, function(handler) {
+                                    $obj.bind(eventName, handler);
+                                });
+                            }
+                        }
                     }
                 }
 
@@ -95,12 +131,12 @@
             // Split apart state and event names.
             finalBindings = {};
             for (stateName in bindings) {
-                stateNames = stateName.split(' ');
+                stateNames = getNames(stateName);
                 for (var i = 0; i < stateNames.length; i++) {
                     events = bindings[stateName];
                     finalEvents = {};
                     for(eventName in events) {
-                        eventNames = eventName.split(' ');
+                        eventNames = getNames(eventName);
                         for (var j = 0; j < eventNames.length; j ++) {
                             finalEvents[eventNames[j]] =
                                 bindings[stateName][eventName];
@@ -109,8 +145,6 @@
                     finalBindings[stateNames[i]] = finalEvents;
                 }
             }
-            
-            console.log(finalBindings);
             
             var defaults = {
                 live: false
