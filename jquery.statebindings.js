@@ -110,7 +110,6 @@
                     forStateNotIn(
                         $obj, previousStates, newStates,
                         function($obj, eventName, handler) {
-                            console.log('unbinding ' + eventName + ' ' + handler);
                             $obj.unbind(eventName, handler);
                         }
                     )
@@ -118,7 +117,6 @@
                     forStateNotIn(
                         $obj, newStates, previousStates,
                         function($obj, eventName, handler) {
-                            console.log('binding ' + eventName + ' ' + handler);
                             $obj.bind(eventName, handler);
                         }
                     )
