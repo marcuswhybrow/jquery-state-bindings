@@ -138,6 +138,18 @@
             removeState: function(state) {
                 var newStates = $.stateBindings.activeStates.subtract(state);
                 $.stateBindings.setState(newStates);
+            },
+            
+            toggleState: function(state) {
+                if ($.stateBindings.activeStates.contains(state)) {
+                    $.stateBindings.setState(
+                        $.stateBindings.activeStates.subtract(state)
+                    );
+                } else {
+                    $.stateBindings.setState(
+                        $.stateBindings.activeStates.concat([state])
+                    );
+                }
             }
         }
     });
