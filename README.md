@@ -1,7 +1,7 @@
 jQuery State Bindings
 =====================
 
-This is a plugin for the JavaScript library jQuery, which allows you to group 
+This is a plugin for the JavaScript library jQuery, which allows your to group 
 you event bindings. These groups can then be enabled or disabled based upon 
 the global "state" of your page.
 
@@ -21,9 +21,10 @@ host it yourself or use it locally.
 Examples
 --------
 
-For example imagine you have an element on you page with an ID of "littleMan". 
-When we click on him and he is in an *angry* state, then he may turn red. On 
-the other hand if he is in a *happy* state when we click, he might turn green.
+For example imagine you have an element on your page with an ID of 
+"littleMan". When we click on him and he is in an *angry* state, then he may 
+turn red. On the other hand if he is in a *happy* state when we click, he 
+might turn green.
 
     $('#littleMan').stateBindings({
         'angry': {
