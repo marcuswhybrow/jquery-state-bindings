@@ -13,7 +13,7 @@ including the plugin, here I am using the Google CDN version of jQuery and the
 Github hosted version of the plugin.
 
     <script src="<script src="//ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.js"></script>"
-    <script src="https://github.com/marcuswhybrow/jquery-state-bindings/raw/0.92/jquery.statebindings.js"></script>
+    <script src="https://github.com/marcuswhybrow/jquery-state-bindings/raw/0.9/jquery.statebindings.js"></script>
 
 Alternatively you can download the latest version of the plugin if you wish to
 host it yourself or use it locally.
@@ -81,8 +81,7 @@ used to separate the logic of and edit mode and the logic of a viewing mode:
         $.stateBindings.toggleState('editing');
     });
 
-Binding to State Changes
-^^^^^^^^^^^^^^^^^^^^^^^^
+**Binding to State Changes**
 
 You can make your logic simpler by binding to state change events which are 
 fired by the *State Bindings* plugin, whenever a state is enabled or disabled:
@@ -110,8 +109,7 @@ If there are multiple ways to enter or exit a state in your page, then this
 approach helps to stop you repeating your logic all over the place, by 
 defining it in one place.
 
-Complicated States
-^^^^^^^^^^^^^^^^^^
+**Complicated States**
 
 If you have states which just should not be enabled unless another state is, 
 then *state hierarchies* are the solution. You define a state as the child of
@@ -145,15 +143,13 @@ This uses calls tojQuery's [live][2] and [die][3], instead of the regular
 Interesting Notes
 -----------------
 
-Namspacing
-^^^^^^^^^^
+**Namspacing**
 
 *State Binding* uses [event namespaces][1] to segregate its binding and 
 unbinding actions from other bindings which are active. It does this using the 
 `.stateBindings` namespace.
 
-Multiple States in One Go
-^^^^^^^^^^^^^^^^^^^^^^^^^
+**Multiple States in One Go**
 
 When defining event names in a call to `$('#...').stateBindings({...})` it is
 possible to bind the same events to multiple states by separating multiple 
@@ -169,8 +165,7 @@ If you are only binding to one state it is possible to omit the quotations:
         stateOne: function(event) {...}
     });
 
-Array Prototyping
-^^^^^^^^^^^^^^^^^
+**Array Prototyping**
 
 Currently this plugin defines three new prototype methods on `Array`. These 
 are `contains`, `remove` and `subtract`. This can cause a problem with for 
